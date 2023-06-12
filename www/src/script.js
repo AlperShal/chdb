@@ -105,8 +105,9 @@ async function search(inputSearchStr, inputSearchPage = 1) {
 			<div class="mb-2 grid grid-cols-7">
 				<!-- Info About The Song -->
 				<div class="col-span-5">
-					<span class="text-lg text-neutral-100">${hit.artist}</span><br />
-					<span class="text">${hit.name}</span>
+					<span class="text-lg">${hit.artist}</span><br />
+					<span class="text">${hit.name}</span><br />
+					<span class="text-lg text-neutral-100">${hit.album}</span>
 				</div>
 				<!-- Instruments -->
 				<div class="col-span-2 flex flex-row-reverse gap-1">
