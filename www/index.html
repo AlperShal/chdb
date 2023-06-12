@@ -1,334 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Clone Hero Charts Database</title>
-		<meta
-			name="description"
-			content="A free searchable and sortable database for Clone Hero charts."
-		/>
-		<link rel="stylesheet" href="./src/tailwind.css" />
-		<script src="https://cdn.jsdelivr.net/npm/meilisearch@latest/dist/bundles/meilisearch.umd.js"></script>
-		<script src="./src/script.js"></script>
-	</head>
-	<body class="text-white">
-		<div class="text-black">
-			ALPHA VERSION <br>
-			Problems I'm aware of: Really wrong sorting with clicks (they are registered as strings so they are not sortable, will be fixed with next database update). Only two results on load
-			(placeholders, will be fixed with next database update). Too much space between EMHX and divider (Don't have any idea why that happens lol). Missing information like note count, hash, album name (will implement when I find the time). Ugly colors (I expected Clone Hero colors to be more suitable... Will be fixed when I find the time) For suggestions and reports:
-			<a class="text-blue-500" href="https://discord.com/users/263735224221827072">Discord</a>
-		</div>
-		<!-- NAVBAR -->
-		<nav class="border-gray-200 bg-[#1f123a] py-1">
-			<div class="mx-4 lg:container lg:mx-auto">
-				<form onsubmit="search(document.getElementById('default-search').value); return false;">
-					<div class="grid grid-cols-10 xl:grid-cols-8 2xl:grid-cols-9">
-						<!-- Title -->
-						<div class="col-span-1 my-auto lg:col-span-2">
-							<h1>
-								<a href="https://chdb.sal.web.tr/" class="hidden md:block">
-									<span
-										class="hidden self-center whitespace-nowrap text-2xl font-semibold tracking-tighter text-white xl:block"
-									>
-										Clone Hero Charts Database
-									</span>
-									<span
-										class="hidden self-center whitespace-nowrap text-[1.7rem] font-semibold tracking-tighter text-white lg:block xl:hidden"
-									>
-										Clone Hero DB
-									</span>
-									<span
-										class="block self-center whitespace-nowrap text-[1.7rem] font-semibold tracking-tight text-white lg:hidden"
-									>
-										CHDB
-									</span>
-								</a>
-							</h1>
-						</div>
-						<!-- Search Bar -->
-						<div class="col-span-8 lg:col-span-7 xl:col-span-5 2xl:col-span-6">
-							<label for="default-search" class="sr-only mb-2 hidden text-sm font-medium text-white"
-								>Search</label
-							>
-							<div class="relative my-2">
-								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-									<svg
-										aria-hidden="true"
-										class="h-5 w-5 text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-										></path>
-									</svg>
-								</div>
-								<input
-									type="search"
-									id="default-search"
-									class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-10 py-5 pl-10 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:pl-10 xl:text-sm"
-									placeholder="Search song, artist, album..."
-								/>
-								<button
-									type="submit"
-									class="absolute right-2.5 bottom-[0.48rem] rounded-lg bg-blue-600 px-4 py-4 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-800 xl:bottom-[0.196rem] xl:py-2"
-								>
-									Search
-								</button>
-							</div>
-						</div>
-						<!-- Dropdown -->
-						<div class="col-span-1 m-2">
-							<!-- Dropdown Button -->
-							<button
-								id="dropdown-button"
-								class="inline-flex h-full w-full items-center rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-800"
-								type="button"
-								onclick="document.getElementById('dropdown').classList.toggle('hidden');"
-							>
-								<svg
-									class="m-2 block xl:hidden"
-									aria-hidden="true"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M19 9l-7 7-7-7"
-									></path>
-								</svg>
-								<svg
-									class="hidden xl:block"
-									aria-hidden="true"
-									fill="none"
-									stroke="currentColor"
-									viewBox="-14 0 56 8"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										class=""
-										transform="translate(0,-9)"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M19 9l-7 7-7-7"
-									></path>
-								</svg>
-							</button>
-						</div>
-					</div>
-					<!-- Advanced Search -->
-					<div id="dropdown" class="my-2">
-						<div class="grid grid-cols-6 gap-3">
-							<!-- Song Name -->
-							<div class="col-span-2">
-								<label for="name-search" class="sr-only mb-2 hidden text-sm font-medium text-white"
-									>Name</label
-								>
-								<input
-									type="search"
-									oninput="searchObj.name = document.getElementById('name-search').value;"
-									id="name-search"
-									class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
-									placeholder="Name"
-								/>
-							</div>
-							<!-- Artist -->
-							<div class="col-span-2">
-								<label
-									for="artist-search"
-									class="sr-only mb-2 hidden text-sm font-medium text-white"
-									>Artist</label
-								>
-								<input
-									type="search"
-									oninput="searchObj.artist = document.getElementById('artist-search').value;"
-									id="artist-search"
-									class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
-									placeholder="Artist"
-								/>
-							</div>
-							<!-- Album -->
-							<div class="col-span-2">
-								<label for="album-search" class="sr-only mb-2 hidden text-sm font-medium text-white"
-									>Album</label
-								>
-								<input
-									type="search"
-									oninput="searchObj.album = document.getElementById('album-search').value;"
-									id="album-search"
-									class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
-									placeholder="Album"
-								/>
-							</div>
-							<!-- Charter -->
-							<div class="col-span-2 col-start-2">
-								<label
-									for="charter-search"
-									class="sr-only mb-2 hidden text-sm font-medium text-white"
-									>Charter</label
-								>
-								<input
-									type="search"
-									oninput="searchObj.charter = document.getElementById('charter-search').value;"
-									id="charter-search"
-									class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
-									placeholder="Charter"
-								/>
-							</div>
-							<!-- Sort by -->
-							<div class="col-span-2">
-								<label for="sort-search" class="sr-only mb-2 hidden text-sm font-medium text-white"
-									>Sort by</label
-								>
-								<button
-									onclick="changeSortButton('sort-search')"
-									id="sort-search"
-									value="clicks:desc"
-									class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-left text-xl text-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
-								>
-									Sort by: Clicks Descending
-								</button>
-							</div>
-						</div>
-						<hr class="sopacity-70 my-2" />
-						Instrument filters here (Will be added when I find the time)
-						<hr class="my-2 opacity-70" />
-						<div id="hasFilter-parent" class="grid grid-cols-4 gap-3 text-center text-xl">
-							<button onclick="changeFilterButton('hasForced')" value="-1" id="hasForced">
-								Forced Notes
-							</button>
-							<button onclick="changeFilterButton('hasBrokenNotes')" value="-1" id="hasBrokenNotes">
-								Broken Notes
-							</button>
-							<button onclick="changeFilterButton('hasOpen')" value="-1" id="hasOpen">
-								Open Notes
-							</button>
-							<button onclick="changeFilterButton('hasTap')" value="-1" id="hasTap">
-								Tap Notes
-							</button>
-							<button onclick="changeFilterButton('hasStarPower')" value="-1" id="hasStarPower">
-								Star Power
-							</button>
-							<button onclick="changeFilterButton('hasBackground')" value="-1" id="hasBackground">
-								Background
-							</button>
-							<button onclick="changeFilterButton('hasVideo')" value="-1" id="hasVideo">
-								Video
-							</button>
-							<button onclick="changeFilterButton('hasLyrics')" value="-1" id="hasLyrics">
-								Lyrics
-							</button>
-							<button onclick="changeFilterButton('hasNoAudio')" value="-1" id="hasNoAudio">
-								No Audio
-							</button>
-							<button onclick="changeFilterButton('hasSections')" value="-1" id="hasSections">
-								Sections
-							</button>
-							<button
-								onclick="changeFilterButton('hasSoloSections')"
-								value="-1"
-								id="hasSoloSections"
-							>
-								Solo Sections
-							</button>
-							<button onclick="changeFilterButton('hasStems')" value="-1" id="hasStems">
-								Stems
-							</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</nav>
-		<!-- END OF HEADER -->
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clone Hero Charts Database</title>
+    <meta
+      name="description"
+      content="A free searchable and sortable database for Clone Hero charts."
+    />
+    <link rel="stylesheet" href="./src/tailwind.css" />
+    <script src="https://cdn.jsdelivr.net/npm/meilisearch@latest/dist/bundles/meilisearch.umd.js"></script>
+    <script src="./src/script.js"></script>
+  </head>
+  <body class="text-white">
+    <div class="text-black">
+      ALPHA VERSION <br />
+      Problems I'm aware of: Really wrong sorting with clicks (they are
+      registered as strings so they are not sortable, will be fixed with next
+      database update). Only two results on load (placeholders, will be fixed
+      with next database update). Too much space between EMHX and divider (Don't
+      have any idea why that happens lol). Missing information like note count,
+      hash, album name (will implement when I find the time). Ugly colors (I
+      expected Clone Hero colors to be more suitable... Will be fixed when I
+      find the time) For suggestions and reports:
+      <a
+        class="text-blue-500"
+        href="https://discord.com/users/263735224221827072"
+        >Discord</a
+      >
+    </div>
+    <!-- NAVBAR -->
+    <nav class="border-gray-200 bg-[#1f123a] py-1">
+      <div class="mx-4 lg:container lg:mx-auto">
+        <form
+          onsubmit="search(document.getElementById('default-search').value); return false;"
+        >
+          <div class="grid grid-cols-10 xl:grid-cols-8 2xl:grid-cols-9">
+            <!-- Title -->
+            <div class="col-span-1 my-auto lg:col-span-2">
+              <h1>
+                <a href="https://chdb.sal.web.tr/" class="hidden md:block">
+                  <span
+                    class="hidden self-center whitespace-nowrap text-2xl font-semibold tracking-tighter text-white xl:block"
+                  >
+                    Clone Hero Charts Database
+                  </span>
+                  <span
+                    class="hidden self-center whitespace-nowrap text-[1.7rem] font-semibold tracking-tighter text-white lg:block xl:hidden"
+                  >
+                    Clone Hero DB
+                  </span>
+                  <span
+                    class="block self-center whitespace-nowrap text-[1.7rem] font-semibold tracking-tight text-white lg:hidden"
+                  >
+                    CHDB
+                  </span>
+                </a>
+              </h1>
+            </div>
+            <!-- Search Bar -->
+            <div class="col-span-8 lg:col-span-7 xl:col-span-5 2xl:col-span-6">
+              <label
+                for="default-search"
+                class="sr-only mb-2 hidden text-sm font-medium text-white"
+                >Search</label
+              >
+              <div class="relative my-2">
+                <div
+                  class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <input
+                  type="search"
+                  id="default-search"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-10 py-5 pl-10 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:pl-10 xl:text-sm"
+                  placeholder="Search song, artist, album..."
+                />
+                <button
+                  type="submit"
+                  class="absolute bottom-[0.48rem] right-2.5 rounded-lg bg-blue-600 px-4 py-4 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-800 xl:bottom-[0.196rem] xl:py-2"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+            <!-- Dropdown -->
+            <div class="col-span-1 m-2">
+              <!-- Dropdown Button -->
+              <button
+                id="dropdown-button"
+                class="inline-flex h-full w-full items-center rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-800"
+                type="button"
+                onclick="document.getElementById('dropdown').classList.toggle('hidden');"
+              >
+                <svg
+                  class="m-2 block xl:hidden"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+                <svg
+                  class="hidden xl:block"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="-14 0 56 8"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    class=""
+                    transform="translate(0,-9)"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <!-- Advanced Search -->
+          <div id="dropdown" class="my-2">
+            <div class="grid grid-cols-6 gap-3">
+              <!-- Song Name -->
+              <div class="col-span-2">
+                <label
+                  for="name-search"
+                  class="sr-only mb-2 hidden text-sm font-medium text-white"
+                  >Name</label
+                >
+                <input
+                  type="search"
+                  oninput="searchObj.name = document.getElementById('name-search').value;"
+                  id="name-search"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
+                  placeholder="Name"
+                />
+              </div>
+              <!-- Artist -->
+              <div class="col-span-2">
+                <label
+                  for="artist-search"
+                  class="sr-only mb-2 hidden text-sm font-medium text-white"
+                  >Artist</label
+                >
+                <input
+                  type="search"
+                  oninput="searchObj.artist = document.getElementById('artist-search').value;"
+                  id="artist-search"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
+                  placeholder="Artist"
+                />
+              </div>
+              <!-- Album -->
+              <div class="col-span-2">
+                <label
+                  for="album-search"
+                  class="sr-only mb-2 hidden text-sm font-medium text-white"
+                  >Album</label
+                >
+                <input
+                  type="search"
+                  oninput="searchObj.album = document.getElementById('album-search').value;"
+                  id="album-search"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
+                  placeholder="Album"
+                />
+              </div>
+              <!-- Charter -->
+              <div class="col-span-2 col-start-2">
+                <label
+                  for="charter-search"
+                  class="sr-only mb-2 hidden text-sm font-medium text-white"
+                  >Charter</label
+                >
+                <input
+                  type="search"
+                  oninput="searchObj.charter = document.getElementById('charter-search').value;"
+                  id="charter-search"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
+                  placeholder="Charter"
+                />
+              </div>
+              <!-- Sort by -->
+              <div class="col-span-2">
+                <label
+                  for="sort-search"
+                  class="sr-only mb-2 hidden text-sm font-medium text-white"
+                  >Sort by</label
+                >
+                <button
+                  onclick="changeSortButton('sort-search')"
+                  id="sort-search"
+                  value="clicks:desc"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-700 px-5 py-3 text-left text-xl text-gray-400 focus:border-blue-500 focus:ring-blue-500 xl:p-3 xl:text-sm"
+                >
+                  Sort by: Clicks Descending
+                </button>
+              </div>
+            </div>
+            <hr class="sopacity-70 my-2" />
+            Instrument filters here (Will be added when I find the time)
+            <hr class="my-2 opacity-70" />
+            <div
+              id="hasFilter-parent"
+              class="grid grid-cols-4 gap-3 text-center text-xl"
+            >
+              <button
+                onclick="changeFilterButton('hasForced')"
+                value="-1"
+                id="hasForced"
+              >
+                Forced Notes
+              </button>
+              <button
+                onclick="changeFilterButton('hasBrokenNotes')"
+                value="-1"
+                id="hasBrokenNotes"
+              >
+                Broken Notes
+              </button>
+              <button
+                onclick="changeFilterButton('hasOpen')"
+                value="-1"
+                id="hasOpen"
+              >
+                Open Notes
+              </button>
+              <button
+                onclick="changeFilterButton('hasTap')"
+                value="-1"
+                id="hasTap"
+              >
+                Tap Notes
+              </button>
+              <button
+                onclick="changeFilterButton('hasStarPower')"
+                value="-1"
+                id="hasStarPower"
+              >
+                Star Power
+              </button>
+              <button
+                onclick="changeFilterButton('hasBackground')"
+                value="-1"
+                id="hasBackground"
+              >
+                Background
+              </button>
+              <button
+                onclick="changeFilterButton('hasVideo')"
+                value="-1"
+                id="hasVideo"
+              >
+                Video
+              </button>
+              <button
+                onclick="changeFilterButton('hasLyrics')"
+                value="-1"
+                id="hasLyrics"
+              >
+                Lyrics
+              </button>
+              <button
+                onclick="changeFilterButton('hasNoAudio')"
+                value="-1"
+                id="hasNoAudio"
+              >
+                No Audio
+              </button>
+              <button
+                onclick="changeFilterButton('hasSections')"
+                value="-1"
+                id="hasSections"
+              >
+                Sections
+              </button>
+              <button
+                onclick="changeFilterButton('hasSoloSections')"
+                value="-1"
+                id="hasSoloSections"
+              >
+                Solo Sections
+              </button>
+              <button
+                onclick="changeFilterButton('hasStems')"
+                value="-1"
+                id="hasStems"
+              >
+                Stems
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </nav>
+    <!-- END OF HEADER -->
 
-		<!-- BODY -->
-		<main
-			class="Parent min-h-screen bg-gradient-to-t from-[#5e4779] via-[#b488cc] to-[#5e4779] text-xl text-white"
-		>
-			<div class="mx-4 py-2 lg:container lg:mx-auto">
-				<div id="entry-parent" class="grid grid-cols-1 gap-4 2xl:grid-cols-2">
-					<!-- ENTRY -->
-					<div class="rounded-lg bg-[#4e279e] px-5 py-3">
-						<div class="mb-2 grid grid-cols-7">
-							<!-- Info About The Song -->
-							<div class="col-span-5">
-								<span class="text-lg text-neutral-100">DragonForce</span><br />
-								<span class="text">Through The Fire and Flames</span>
-							</div>
-							<!-- Instruments -->
-							<div class="col-span-2 flex flex-row-reverse gap-1">
-								<div class="col-span-1 text-center">
-									<img class="mx-auto max-h-10" src="img/guitar.png" />
-									<span class="text-sm" href="">EMHX</span>
-								</div>
-								<div class="col-span-1 text-center">
-									<img class="mx-auto w-10 h-10 max-h-10" src="img/drums.svg" />
-									<span class="text-sm" href="">EMHX</span>
-								</div>
-							</div>
-						</div>
-						<div class="mt-1 flex-grow border-t border-gray-200"></div>
-						<span class="text"
-							><a
-								class="underline underline-offset-[1.5px] hover:text-violet-200"
-								onclick="updateClicks()"
-								href="#"
-								>Download X's Chart</a
-							>
-							<small>(31)</small></span
-						>
-					</div>
-					<div class="rounded-lg bg-[#4e279e] px-5 py-3">
-						<span class="text-lg text-neutral-100">DragonForce</span><br />
-						<span class="text">Through The Fire and Flames</span>
-						<div class="mt-1 flex-grow border-t border-gray-200"></div>
-						<span class="text"
-							><a
-								class="underline underline-offset-[1.5px] hover:text-violet-200"
-								onclick="updateClicks()"
-								href="#"
-								>Download X's Chart</a
-							>
-							<small>(31)</small></span
-						>
-					</div>
-				</div>
-				<div class="my-5">
-					<ul id="page-parent" class="inline-flex -space-x-px">
-						<li onclick="search(searchStr, searchPage - 1);">
-							<a
-								href="#"
-								class="ml-0 rounded-l-lg border border-gray-300 bg-white px-3 py-2 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-								>Previous</a
-							>
-						</li>
-						<li onclick="search(searchStr, 1);">
-							<a
-								href="#"
-								class="border border-gray-700 bg-gray-700 px-3 py-2 text-white hover:bg-blue-100 hover:text-blue-700"
-								>1</a
-							>
-						</li>
-						<li onclick="search(searchStr, searchPage + 1);">
-							<a
-								href="#"
-								class="rounded-r-lg border border-gray-700 bg-gray-800 px-3 py-2 leading-tight text-gray-400 hover:bg-gray-700 hover:text-white"
-								>Next</a
-							>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</main>
-	</body>
+    <!-- BODY -->
+    <main
+      class="Parent min-h-screen bg-gradient-to-t from-[#5e4779] via-[#b488cc] to-[#5e4779] text-xl text-white"
+    >
+      <div class="mx-4 py-2 lg:container lg:mx-auto">
+        <div id="entry-parent" class="grid grid-cols-1 gap-4 2xl:grid-cols-2">
+          <!-- ENTRY -->
+          <div class="rounded-lg bg-[#4e279e] px-5 py-3">
+            <div class="mb-2 grid grid-cols-7">
+              <!-- Info About The Song -->
+              <div class="col-span-5">
+                <span class="text-lg text-neutral-100">DragonForce</span><br />
+                <span class="text">Through The Fire and Flames</span>
+              </div>
+              <!-- Instruments -->
+              <div class="col-span-2 flex flex-row-reverse gap-1">
+                <div class="col-span-1 text-center">
+                  <img class="mx-auto max-h-10" src="img/guitar.png" />
+                  <span class="text-sm" href="">EMHX</span>
+                </div>
+                <div class="col-span-1 text-center">
+                  <img class="mx-auto h-10 max-h-10 w-10" src="img/drums.svg" />
+                  <span class="text-sm" href="">EMHX</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-1 flex-grow border-t border-gray-200"></div>
+            <span class="text"
+              ><a
+                class="underline underline-offset-[1.5px] hover:text-violet-200"
+                onclick="updateClicks()"
+                href="#"
+                >Download X's Chart</a
+              >
+              <small>(31)</small></span
+            >
+          </div>
+          <div class="rounded-lg bg-[#4e279e] px-5 py-3">
+            <span class="text-lg text-neutral-100">DragonForce</span><br />
+            <span class="text">Through The Fire and Flames</span>
+            <div class="mt-1 flex-grow border-t border-gray-200"></div>
+            <span class="text"
+              ><a
+                class="underline underline-offset-[1.5px] hover:text-violet-200"
+                onclick="updateClicks()"
+                href="#"
+                >Download X's Chart</a
+              >
+              <small>(31)</small></span
+            >
+          </div>
+        </div>
+        <div class="my-5">
+          <ul id="page-parent" class="inline-flex -space-x-px">
+            <li onclick="search(searchStr, searchPage - 1);">
+              <a
+                href="#"
+                class="ml-0 rounded-l-lg border border-gray-300 bg-white px-3 py-2 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >Previous</a
+              >
+            </li>
+            <li onclick="search(searchStr, 1);">
+              <a
+                href="#"
+                class="border border-gray-700 bg-gray-700 px-3 py-2 text-white hover:bg-blue-100 hover:text-blue-700"
+                >1</a
+              >
+            </li>
+            <li onclick="search(searchStr, searchPage + 1);">
+              <a
+                href="#"
+                class="rounded-r-lg border border-gray-700 bg-gray-800 px-3 py-2 leading-tight text-gray-400 hover:bg-gray-700 hover:text-white"
+                >Next</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
