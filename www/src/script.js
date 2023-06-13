@@ -20,20 +20,28 @@ function generateInstrumentList(noteCounts) {
   let instrumentListHtml = ``;
   let instruments = ["guitar", "bass", "drums", "keys"];
   let difficulties = ["e", "m", "h", "x"];
+  let difficultiesLong = ["Easy", "Medium", "Hard", "Extreme"];
   if (noteCounts !== undefined) {
     noteCounts = JSON.parse(noteCounts);
     instruments.forEach((instrument) => {
       if (noteCounts[instrument] !== undefined) {
         let difficultyHtml = ``;
+        let tooltipHtml = ``;
         difficulties.forEach(function (difficulty) {
           if (noteCounts[instrument][difficulty] !== undefined) {
             difficultyHtml = difficultyHtml.concat(difficulty).toUpperCase();
+            tooltipHtml = tooltipHtml.concat(
+              `<nobr>${difficultiesLong[difficulties.indexOf(difficulty)]}: ${
+                noteCounts[instrument][difficulty]
+              } Notes</nobr><br />`
+            );
           }
         });
         let instrumentHtml = `
-				<div class="col-span-1 text-center">
+				<div class="tooltip col-span-1 text-center">
 					<img class="mx-auto w-10 h-10 max-h-10" src="img/${instrument}.png" />
 				 	<span class="text-sm" href="">${difficultyHtml}</span>
+          <span class="tooltiptext bg-gray-700 text-sm p-2">${tooltipHtml}</span>
 		 		</div>`;
         instrumentListHtml = instrumentListHtml.concat(instrumentHtml);
       }
@@ -66,38 +74,6 @@ async function search(inputSearchStr, inputSearchPage = 1) {
   results.hits.forEach((hit) => {
     // Add instruments
     instrumentListHtml = generateInstrumentList(hit.noteCounts);
-
-    // // Check for guitar
-    // if (noteCounts.guitar !== undefined) {
-    // 	// Check difficulties
-    // 	let difficultyList = ''
-    // 	// Easy
-    // 	if (noteCounts.guitar.e !== undefined) {
-    // 		difficultyList = difficultyList.concat('E')
-    // 	} // BURADA KALDIN, BU CONCATLERİ YUKARIDAKI FONK İÇİNDE OLUŞTURUP DÖNDÜRECEKSİN
-    // 	if (noteCounts.guitar.m !== undefined) {
-    // 		difficultyList = difficultyList.concat('M')
-    // 	}
-    // 	// Add guitar to the page
-    // 	instrumentListHtml = instrumentListHtml.concat(`
-    // 	<!-- GUITAR -->
-    // 	<div class="col-span-1 text-center">
-    // 		<img class="mx-auto max-h-10" src="img/guitar.png" />
-    // 		<span class="text-sm" href="">${difficultyList}</span>
-    // 	</div>
-    // 	`);
-    // };
-    // // Check for drums
-    // if (noteCounts.drums !== undefined) {
-    // 	// Add drums to the page
-    // 	instrumentListHtml = instrumentListHtml.concat(`
-    // 	<!-- DRUMS -->
-    // 	<div class="col-span-1 text-center">
-    // 		<img class="mx-auto w-10 h-10 max-h-10" src="img/drums.svg" />
-    // 		<span class="text-sm" href="">EMHX</span>
-    // 	</div>
-    // 	`);
-    // };
 
     resultsList.innerHTML = resultsList.innerHTML.concat(`
 		<!-- ENTRY -->

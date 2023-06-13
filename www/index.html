@@ -8,6 +8,7 @@
       content="A free searchable and sortable database for Clone Hero charts."
     />
     <link rel="stylesheet" href="./src/tailwind.css" />
+    <link rel="stylesheet" href="./src/input.css" />
     <script src="https://cdn.jsdelivr.net/npm/meilisearch@latest/dist/bundles/meilisearch.umd.js"></script>
     <script src="./src/script.js"></script>
   </head>
@@ -337,11 +338,14 @@
               </div>
               <!-- Instruments -->
               <div class="col-span-2 flex flex-row-reverse gap-1">
-                <div class="col-span-1 text-center">
+                <div class="tooltip col-span-1 text-center">
                   <img class="mx-auto max-h-10" src="img/guitar.png" />
                   <span class="text-sm" href="">EMHX</span>
+                  <span class="tooltiptext bg-gray-700 text-sm"
+                    >Tooltip texttttttttttttttttt<br />Test</span
+                  >
                 </div>
-                <div class="col-span-1 text-center">
+                <div class="tooltip col-span-1 text-center">
                   <img class="mx-auto h-10 max-h-10 w-10" src="img/drums.svg" />
                   <span class="text-sm" href="">EMHX</span>
                 </div>

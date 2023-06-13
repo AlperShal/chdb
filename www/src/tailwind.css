@@ -842,6 +842,10 @@ video {
   --tw-gradient-to: #5e4779 var(--tw-gradient-to-position);
 }
 
+.p-2 {
+  padding: 0.5rem;
+}
+
 .px-10 {
   padding-left: 2.5rem;
   padding-right: 2.5rem;
