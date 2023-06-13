@@ -39,7 +39,7 @@ function generateInstrumentList(noteCounts) {
         });
         let instrumentHtml = `
 				<div class="tooltip col-span-1 text-center">
-					<img class="mx-auto w-10 h-10 max-h-10" src="img/${instrument}.png" />
+					<img class="mx-auto w-12 h-12 max-h-12" src="img/${instrument}.png" />
 				 	<span class="text-sm" href="">${difficultyHtml}</span>
           <span class="tooltiptext bg-gray-700 text-sm p-2">${tooltipHtml}</span>
 		 		</div>`;
