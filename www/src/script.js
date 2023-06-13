@@ -51,7 +51,7 @@ function generateInstrumentList(noteCounts) {
   return instrumentListHtml;
 }
 
-async function search(inputSearchStr, inputSearchPage = 1) {
+async function search(inputSearchStr = "", inputSearchPage = 1) {
   // Log Requested Search String and Page
   searchStr = inputSearchStr;
   searchPage = inputSearchPage;
