@@ -1,6 +1,6 @@
 // Variables
 const client = new MeiliSearch({
-  host: "https://db.chdb.sal.web.tr",
+  host: "https://chdb-db.sal.web.tr",
   apiKey: "fd56d11ffea846d14f172113619a425fd980d949be887b25b9ff02874b6d99ac",
 });
 const index = client.index("charts");
@@ -176,7 +176,7 @@ function updateFilters(inputObj) {
 }
 
 function updateClicks(chart_id) {
-  fetch(`https://api.chdb.sal.web.tr/newclick/${chart_id}`, {
+  fetch(`https://chdb-api.sal.web.tr/newclick/${chart_id}`, {
     method: "POST",
   });
 }
