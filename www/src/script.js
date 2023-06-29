@@ -171,7 +171,6 @@ function updateFilters(inputObj) {
     searchSort[0] = sortElement.value;
   }
 
-  console.log(searchFilters);
   return searchFilters;
 }
 
