@@ -107,10 +107,18 @@ async function search(inputSearchStr = "", inputSearchPage = 1) {
   const pagesList = document.getElementById("page-parent");
   pagesList.innerHTML = "";
   // Add Prev Button
-  pagesList.innerHTML = `
+  // Check if "prev" is applicable
+  if (results.page > 1) {
+    pagesList.innerHTML = pagesList.innerHTML.concat(`
     <li onclick="search(searchStr, searchPage - 1);">
       <a href="#" class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
-    </li>`;
+    </li>`);
+  } else {
+    pagesList.innerHTML = pagesList.innerHTML.concat(`
+    <li>
+      <a style="cursor: pointer" class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+    </li>`);
+  }
   // Add Page Buttons
   for (let i = 1; i <= results.totalPages; i++) {
     // Add Active Page Button
@@ -129,10 +137,18 @@ async function search(inputSearchStr = "", inputSearchPage = 1) {
     }
   }
   // Add Next Button
-  pagesList.innerHTML = pagesList.innerHTML.concat(`
-    <li onclick="search(searchStr, searchPage + 1);">
-      <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
-    </li>`);
+  // Check if "next" is applicable
+  if (results.page < results.totalPages) {
+    pagesList.innerHTML = pagesList.innerHTML.concat(`
+      <li onclick="search(searchStr, searchPage + 1);">
+        <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+      </li>`);
+  } else {
+    pagesList.innerHTML = pagesList.innerHTML.concat(`
+      <li>
+        <a style="cursor: pointer" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+      </li>`);
+  }
 }
 
 function updateFilters(inputObj) {
